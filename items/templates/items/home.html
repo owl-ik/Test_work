@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Добро пожаловать в магазинчик</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+        .item-card {
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            background: rgb(255, 255, 255);
+        }
+        h2 {
+            margin-top: 0;
+            color: rgb(0, 0, 0);
+        }
+        p {
+            color: rgb(0, 0, 0);
+            line-height: 1.5;
+        }
+        .buy-link {
+            display: inline-block;
+            background: rgb(0, 25, 255);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .buy-link:hover {
+            background: rgb(0, 25, 255);
+        }
+    </style>
+</head>
+<body>
+    <h1>Товары</h1>
+    {% for item in items %}
+        <div class="item-card">
+            <h2>{{ item.name }}</h2>
+            <p>{{ item.description }}</p>
+            <p><strong>Цена: ${{ item.price }}</strong></p>
+            <a href="{% url 'item_detail' item.id %}" class="buy-link">Изучить товар</a>
+        </div>
+    {% empty %}
+        <p>Увы, товары отсутствуют</p>
+    {% endfor %}
+</body>
+</html>

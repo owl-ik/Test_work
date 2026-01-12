@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ item.name }} - Купить</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        body {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        h1 {
+            color: rgb(0, 0, 0);
+            border-bottom: 2px solid rgb(0, 0, 0);
+            padding-bottom: 10px;
+        }
+        .price {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: rgb(0, 0, 0);
+        }
+        .buy-btn {
+            background: rgb(0, 21, 255);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .buy-btn:hover {
+            background: rgb(0, 21, 255);
+        }
+        .loading {
+            opacity: 0.6;
+        }
+        .error {
+            color: rgb(255, 25, 0);
+            background: rgb(255, 255, 255);
+            padding: 12px;
+            border-radius: 4px;
+            margin-top: 15px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>{{ item.name }}</h1>
+    <p>{{ item.description }}</p>
+    <p class="price">Цена: ${{ item.price }}</p>
+
+    <button id="buyBtn" class="buy-btn">Купить сейчас</button>
+    <div id="errorMsg" class="error"></div>
+
+    <script>
+        const stripeKey = '{{ stripe_public_key }}';
+        const itemId = {{ item.id }};
+
+        document.getElementById('buyBtn').addEventListener('click', async function() {
+            const btn = this;
+            const errorDiv = document.getElementById('errorMsg');
+
+            errorDiv.style.display = 'none';
+            btn.disabled = true;
+            btn.textContent = 'Обработка...';
+            btn.classList.add('loading');
+
+            try {
+                const response = await fetch(`/items/buy/${itemId}/`, { method: 'GET' });
+                if (!response.ok) throw new Error('Ошибка загрузки сессии оплаты');
+
+                const session = await response.json();
+                const stripe = Stripe(stripeKey);
+                const result = await stripe.redirectToCheckout({ sessionId: session.id });
+
+                if (result.error) throw new Error(result.error.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Купить сейчас';
+                btn.classList.remove('loading');
+            }
+        });
+    </script>
+</body>
+</html>
